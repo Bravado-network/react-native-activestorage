@@ -34,21 +34,21 @@ export default ({ directUploadsUrl, file, headers }, onStatusChange) => {
         const progress = (count / total) * 100
         handleStatusUpdate({ status: 'progress', progress, total, count });
       })
-      .then((resp) => {
-        const status = resp.info().status;
+      .then((response) => {
+        const status = response.info().status;
         if (status >= 200 && status < 400) {
-          handleStatusUpdate({ status: 'finished' });
+          handleStatusUpdate({ status: 'finished', response });
         } else {
-          handleStatusUpdate({ status: 'error' });
+          handleStatusUpdate({ status: 'error', response });
         }
 
-        resolve(blobData.signed_id)
+        resolve(blobData)
       })
-      .catch((err) => {
+      .catch((error) => {
         if (canceled) {
-          handleStatusUpdate({ status: 'canceled' });
+          handleStatusUpdate({ status: 'canceled', error });
         } else {
-          handleStatusUpdate({ status: 'error' });
+          handleStatusUpdate({ status: 'error', error });
         }
 
         resolve()
