@@ -21,37 +21,42 @@ export default ({ directUploadsUrl, file, headers }, onStatusChange) => {
 
   handleStatusUpdate({ status: 'waiting' });
 
-  return new Promise(async (resolve, reject) => {
-    const blobData = await createBlobRecord({ directUploadsUrl, file, headers });
-    const { url, headers: uploadHeaders } = blobData.direct_upload;
+  return new Promise(async (resolve) => {
+    try {
+      const blobData = await createBlobRecord({ directUploadsUrl, file, headers });
+      const { url, headers: uploadHeaders } = blobData.direct_upload;
 
-    const fileData = RNFetchBlob.wrap(file.path);
+      const fileData = RNFetchBlob.wrap(file.path);
 
-    task = RNFetchBlob.fetch('PUT', url, uploadHeaders, fileData)
+      task = RNFetchBlob.fetch('PUT', url, uploadHeaders, fileData);
 
-    task
-      .uploadProgress({ interval: 250 }, (count, total) => {
-        const progress = (count / total) * 100
-        handleStatusUpdate({ status: 'progress', progress, total, count });
-      })
-      .then((response) => {
-        const status = response.info().status;
-        if (status >= 200 && status < 400) {
-          handleStatusUpdate({ status: 'finished', response });
-        } else {
-          handleStatusUpdate({ status: 'error', response });
-        }
+      task
+        .uploadProgress({ interval: 250 }, (count, total) => {
+          const progress = (count / total) * 100
+          handleStatusUpdate({ status: 'progress', progress, total, count });
+        })
+        .then((response) => {
+          const status = response.info().status;
+          if (status >= 200 && status < 400) {
+            handleStatusUpdate({ status: 'finished', response });
+          } else {
+            handleStatusUpdate({ status: 'error', response });
+          }
 
-        resolve(blobData)
-      })
-      .catch((error) => {
-        if (canceled) {
-          handleStatusUpdate({ status: 'canceled', error });
-        } else {
-          handleStatusUpdate({ status: 'error', error });
-        }
+          resolve(blobData)
+        })
+        .catch((error) => {
+          if (canceled) {
+            handleStatusUpdate({ status: 'canceled', error });
+          } else {
+            handleStatusUpdate({ status: 'error', error });
+          }
 
-        resolve()
-      })
-  })
-}
+          resolve()
+        });
+    } catch (error) {
+      handleStatusUpdate({ status: 'error', error });
+      resolve();
+    }
+  });
+};
