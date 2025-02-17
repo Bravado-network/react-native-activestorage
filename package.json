@@ -18,7 +18,7 @@
     "abab": "^2.0.3"
   },
   "peerDependencies": {
-    "rn-fetch-blob": ">= 0.10.0"
+    "react-native-blob-util": ">= 0.21.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",

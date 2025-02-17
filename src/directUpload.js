@@ -1,4 +1,4 @@
-import RNFetchBlob from "rn-fetch-blob";
+import RNFetchBlob from "react-native-blob-util";
 import createBlobRecord from "./createBlobRecord";
 
 let id = 0;
